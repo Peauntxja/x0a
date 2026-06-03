@@ -1,0 +1,26 @@
+{
+  "name": "x0a",
+  "version": "1.0.0",
+  "description": "一键下载推特博主原创推文并导出 Markdown",
+  "type": "module",
+  "main": "src/cli.js",
+  "scripts": {
+    "download": "node src/cli.js",
+    "setup": "npx puppeteer browsers install chrome"
+  },
+  "keywords": [
+    "twitter",
+    "x",
+    "markdown",
+    "scraper",
+    "xactions"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "xactions": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
