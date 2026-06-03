@@ -7,6 +7,8 @@
   "scripts": {
     "download": "tsx src/cli.ts",
     "setup": "npx puppeteer browsers install chrome",
+    "setup:hooks": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg scripts/strip-cursor-coauthor.sh",
+    "fix:contributors": "bash scripts/strip-cursor-coauthor.sh",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
