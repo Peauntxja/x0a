@@ -25,6 +25,8 @@ cp .env.example .env
 # XACTIONS_CT0=你的ct0
 
 # 一键下载（博主主页 URL）
+npm run setup:hooks  # 启用 commit-msg 钩子，避免 Cursor 共著污染 Contributors
+
 npm run typecheck   # TypeScript 类型检查
 npm run download -- "https://x.com/karpathy"
 
