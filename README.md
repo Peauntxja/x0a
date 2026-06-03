@@ -5,6 +5,7 @@
 ## 环境要求
 
 - Node.js 18+（推荐 20；项目含 `.node-version`，可用 [fnm](https://github.com/Schniz/fnm)：`fnm use`）
+- TypeScript + [tsx](https://github.com/privatenumber/tsx) 直接运行源码
 - 首次 `npm install` 会下载 Puppeteer/Chromium，体积较大
 
 ## 快速开始
@@ -24,6 +25,7 @@ cp .env.example .env
 # XACTIONS_CT0=你的ct0
 
 # 一键下载（博主主页 URL）
+npm run typecheck   # TypeScript 类型检查
 npm run download -- "https://x.com/karpathy"
 
 # 或用户名 + 条数

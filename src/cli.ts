@@ -11,11 +11,12 @@ import {
   loadTwitterSessionFromEnv,
   validateTwitterSession,
 } from './twitterSession.js';
+import type { CliOptions } from './types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 
-function loadEnvFile() {
+function loadEnvFile(): void {
   const envPath = path.join(projectRoot, '.env');
   if (!fs.existsSync(envPath)) {
     return;
@@ -39,7 +40,7 @@ function loadEnvFile() {
   }
 }
 
-function printHelp() {
+function printHelp(): void {
   console.log(`用法:
   npm run download -- <主页URL或用户名> [选项]
 
@@ -57,11 +58,8 @@ function printHelp() {
 `);
 }
 
-/**
- * @param {string[]} argv
- */
-function parseArgs(argv) {
-  const options = {
+function parseArgs(argv: string[]): CliOptions {
+  const options: CliOptions = {
     target: null,
     limit: 500,
     output: path.join(projectRoot, 'output'),
@@ -71,7 +69,7 @@ function parseArgs(argv) {
     help: false,
   };
 
-  const positional = [];
+  const positional: string[] = [];
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -140,7 +138,7 @@ function parseArgs(argv) {
   return options;
 }
 
-async function main() {
+async function main(): Promise<void> {
   loadEnvFile();
 
   const options = parseArgs(process.argv.slice(2));
@@ -214,7 +212,8 @@ async function main() {
   console.log(`  单条: ${path.join(result.outDir, 'tweets')} (${result.tweetCount} 个文件)`);
 }
 
-main().catch((error) => {
-  console.error(`错误: ${error.message}`);
+main().catch((error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`错误: ${message}`);
   process.exitCode = 1;
 });

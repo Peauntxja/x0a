@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "一键下载推特博主原创推文并导出 Markdown",
   "type": "module",
-  "main": "src/cli.js",
+  "main": "src/cli.ts",
   "scripts": {
-    "download": "node src/cli.js",
-    "setup": "npx puppeteer browsers install chrome"
+    "download": "tsx src/cli.ts",
+    "setup": "npx puppeteer browsers install chrome",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "twitter",
@@ -19,6 +20,11 @@
   "license": "MIT",
   "dependencies": {
     "xactions": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=18"
