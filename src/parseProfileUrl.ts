@@ -1,9 +1,4 @@
-/**
- * 从博主主页 URL、@handle 或纯用户名解析出 username。
- * @param {string} input
- * @returns {string}
- */
-export function parseProfileUrl(input) {
+export function parseProfileUrl(input: string): string {
   const trimmed = String(input || '').trim();
   if (!trimmed) {
     throw new Error('请提供博主主页 URL 或用户名');

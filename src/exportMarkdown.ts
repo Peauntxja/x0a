@@ -1,11 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import type {
+  ExportMarkdownParams,
+  ExportResult,
+  Profile,
+  Tweet,
+} from './types.js';
 
-/**
- * @param {string} text
- * @param {number} maxLen
- */
-function summarize(text, maxLen = 60) {
+function summarize(text: string, maxLen = 60): string {
   const normalized = String(text || '').replace(/\s+/g, ' ').trim();
   if (!normalized) {
     return '(无正文)';
@@ -16,10 +18,7 @@ function summarize(text, maxLen = 60) {
   return `${normalized.slice(0, maxLen)}…`;
 }
 
-/**
- * @param {string | undefined | null} value
- */
-function formatDate(value) {
+function formatDate(value: string | null | undefined): string {
   if (!value) {
     return '未知日期';
   }
@@ -30,53 +29,38 @@ function formatDate(value) {
   return date.toISOString();
 }
 
-/**
- * @param {Record<string, unknown>} tweet
- * @param {string} username
- */
-function buildTweetUrl(tweet, username) {
-  if (typeof tweet.url === 'string' && tweet.url) {
+function buildTweetUrl(tweet: Tweet, username: string): string {
+  if (tweet.url) {
     return tweet.url;
   }
-  const id = tweet.id;
-  const author = tweet.author || username;
-  return `https://x.com/${author}/status/${id}`;
+  return `https://x.com/${tweet.author || username}/status/${tweet.id}`;
 }
 
-/**
- * @param {Record<string, unknown>} tweet
- * @param {string} username
- */
-function renderTweetBody(tweet, username) {
-  const lines = [];
-  const timestamp = formatDate(
-    typeof tweet.timestamp === 'string' ? tweet.timestamp : undefined
-  );
-  const summary = summarize(typeof tweet.text === 'string' ? tweet.text : '');
+function renderTweetBody(tweet: Tweet, username: string): string {
+  const lines: string[] = [];
+  const timestamp = formatDate(tweet.timestamp);
+  const summary = summarize(tweet.text);
 
   lines.push(`## ${timestamp} — ${summary}`);
   lines.push('');
-  lines.push(typeof tweet.text === 'string' ? tweet.text : '');
+  lines.push(tweet.text);
   lines.push('');
   lines.push(
-    `- 点赞: ${tweet.likes ?? 0} | 转推: ${tweet.retweets ?? 0} | 回复: ${tweet.replies ?? 0} | 浏览: ${tweet.views ?? 0}`
+    `- 点赞: ${tweet.likes} | 转推: ${tweet.retweets} | 回复: ${tweet.replies} | 浏览: ${tweet.views}`
   );
   lines.push(`- 链接: ${buildTweetUrl(tweet, username)}`);
 
-  const media = Array.isArray(tweet.media) ? tweet.media : [];
-  if (media.length > 0) {
+  if (tweet.media.length > 0) {
     lines.push('');
     lines.push('### 媒体');
-    for (const item of media) {
-      const type = item && typeof item === 'object' ? item.type : 'media';
-      const url = item && typeof item === 'object' ? item.url : null;
-      if (!url) {
+    for (const item of tweet.media) {
+      if (!item.url) {
         continue;
       }
-      if (type === 'image') {
-        lines.push(`![](${url})`);
+      if (item.type === 'image') {
+        lines.push(`![](${item.url})`);
       } else {
-        lines.push(`- [${type}](${url})`);
+        lines.push(`- [${item.type}](${item.url})`);
       }
     }
   }
@@ -85,23 +69,23 @@ function renderTweetBody(tweet, username) {
   return lines.join('\n');
 }
 
-/**
- * @param {{
- *   profile: Record<string, unknown> | null,
- *   tweets: Array<Record<string, unknown>>,
- *   username: string,
- *   limit: number,
- *   outputRoot: string,
- * }} params
- * @returns {Promise<{ outDir: string, mergedFile: string, indexFile: string, tweetCount: number }>}
- */
+function resolveProfileName(profile: Profile | null, username: string): string {
+  if (profile?.name) {
+    return profile.name;
+  }
+  if (profile?.displayName) {
+    return profile.displayName;
+  }
+  return username;
+}
+
 export async function exportMarkdown({
   profile,
   tweets,
   username,
   limit,
   outputRoot,
-}) {
+}: ExportMarkdownParams): Promise<ExportResult> {
   const outDir = path.join(outputRoot, username);
   const tweetsDir = path.join(outDir, 'tweets');
   await fs.mkdir(tweetsDir, { recursive: true });
@@ -112,10 +96,7 @@ export async function exportMarkdown({
     return tb - ta;
   });
 
-  const profileName =
-    (profile && typeof profile.name === 'string' && profile.name) ||
-    (profile && typeof profile.displayName === 'string' && profile.displayName) ||
-    username;
+  const profileName = resolveProfileName(profile, username);
   const exportedAt = new Date().toISOString();
 
   const mergedHeader = [
@@ -140,7 +121,7 @@ export async function exportMarkdown({
       `# 推文 ${id}`,
       '',
       `> 博主: @${username}`,
-      `> 日期: ${formatDate(typeof tweet.timestamp === 'string' ? tweet.timestamp : undefined)}`,
+      `> 日期: ${formatDate(tweet.timestamp)}`,
       '',
       '---',
       '',
@@ -166,9 +147,9 @@ export async function exportMarkdown({
 
   for (const tweet of sorted) {
     const id = String(tweet.id || 'unknown');
-    const date = formatDate(typeof tweet.timestamp === 'string' ? tweet.timestamp : undefined);
-    const summary = summarize(typeof tweet.text === 'string' ? tweet.text : '', 40);
-    const engagement = `❤ ${tweet.likes ?? 0} · 🔁 ${tweet.retweets ?? 0} · 💬 ${tweet.replies ?? 0}`;
+    const date = formatDate(tweet.timestamp);
+    const summary = summarize(tweet.text, 40);
+    const engagement = `❤ ${tweet.likes} · 🔁 ${tweet.retweets} · 💬 ${tweet.replies}`;
     indexLines.push(
       `| ${date} | ${summary.replace(/\|/g, '\\|')} | [${id}](tweets/${id}.md) | ${engagement} |`
     );

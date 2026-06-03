@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import type { BrowserLaunchOptions } from './types.js';
 
 const SYSTEM_CHROME_PATHS = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -8,13 +9,10 @@ const SYSTEM_CHROME_PATHS = [
   'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
 ];
 
-/**
- * 优先使用环境变量或本机已安装的 Chrome，避免 Puppeteer 缓存缺失时报错。
- * @param {{ headless?: boolean }} options
- * @returns {{ headless?: boolean, executablePath?: string }}
- */
-export function resolveBrowserOptions(options = {}) {
-  const resolved = { ...options };
+export function resolveBrowserOptions(
+  options: BrowserLaunchOptions = {}
+): BrowserLaunchOptions {
+  const resolved: BrowserLaunchOptions = { ...options };
 
   if (process.env.PUPPETEER_EXECUTABLE_PATH) {
     const customPath = process.env.PUPPETEER_EXECUTABLE_PATH;

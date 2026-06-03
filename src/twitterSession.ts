@@ -1,19 +1,15 @@
-/**
- * @returns {{ authToken: string, ct0: string }}
- */
-export function loadTwitterSessionFromEnv() {
+import type { Page } from 'puppeteer';
+import type { TwitterSession } from './types.js';
+
+export function loadTwitterSessionFromEnv(): TwitterSession {
   return {
     authToken: (process.env.XACTIONS_AUTH_TOKEN || '').trim(),
     ct0: (process.env.XACTIONS_CT0 || '').trim(),
   };
 }
 
-/**
- * @param {{ authToken: string, ct0: string }} session
- * @returns {string[]}
- */
-export function validateTwitterSession(session) {
-  const issues = [];
+export function validateTwitterSession(session: TwitterSession): string[] {
+  const issues: string[] = [];
 
   if (!session.authToken) {
     issues.push('未设置 XACTIONS_AUTH_TOKEN');
@@ -32,19 +28,14 @@ export function validateTwitterSession(session) {
   return issues;
 }
 
-/**
- * @param {{ authToken: string, ct0: string }} session
- * @returns {string}
- */
-export function buildCookieHeader(session) {
+export function buildCookieHeader(session: TwitterSession): string {
   return `auth_token=${session.authToken}; ct0=${session.ct0}`;
 }
 
-/**
- * @param {import('puppeteer').Page} page
- * @param {{ authToken: string, ct0: string }} session
- */
-export async function loginPageWithSession(page, session) {
+export async function loginPageWithSession(
+  page: Page,
+  session: TwitterSession
+): Promise<void> {
   await page.setCookie(
     {
       name: 'auth_token',
